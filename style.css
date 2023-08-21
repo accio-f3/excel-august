@@ -6,3 +6,17 @@ th,td{
     min-width: 80px;
     border: 1px solid #333;
 }
+
+td{
+    outline: none;
+}
+
+#current-cell{
+    display: inline-block;
+}
+
+.table-top-cont{
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
