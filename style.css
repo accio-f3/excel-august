@@ -4,6 +4,7 @@ table{
 
 th,td{
     min-width: 80px;
+    /* width is increasing with extra content */
     border: 1px solid #333;
 }
 
@@ -19,4 +20,16 @@ td{
     display: flex;
     align-items: center;
     gap: 15px;
+}
+
+#bold-btn{
+    font-weight: bold;
+}
+
+#italics-btn{
+    font-style: italic;
+}
+
+#underline-btn{
+    text-decoration: underline;
 }
