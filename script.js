@@ -16,13 +16,23 @@ const underlineBtn = document.getElementById('underline-btn');
 const leftBtn = document.getElementById('left-btn');
 const centerBtn = document.getElementById('center-btn');
 const rightBtn = document.getElementById('right-btn');
+const cutBtn = document.getElementById('cut-btn');
+const copyBtn = document.getElementById('copy-btn');
+const pasteBtn = document.getElementById('paste-btn');
+
+// color inputs
+const bgColorSelector=document.getElementById('bgColor');
+const fontColorSelector=document.getElementById('fontColor');
 
 // excel dropdowns
-const fontDropdown = document.getElementById('fonte-style-dropdown');
+const fontFamilyDropdown = document.getElementById('fonte-style-dropdown');
+const fontSizeDropdown = document.getElementById('fonte-size-dropdown');
 
 // variables to save cache
 let prevCellId;
 let currentCell;
+let cutCell;
+let lastPressedBtn;
 
 function colGen(typeOfCell, tableRow, isInnerText, rowNumber) {
     for (let col = 0; col < columns; col++) {
@@ -58,18 +68,16 @@ function buttonHighlter(currentCell, button, style, styleProperty) {
     }
 }
 
-// function buttonClickHandler(currentCell, button, style, toggleStyle, styleProperty) {
-//     button.addEventListener('click',()=>{
-//         if(currentCell.style[styleProperty]===style){
-//             currentCell.style[styleProperty]=toggleStyle;
-//             button.style.backgroundColor=transparent;
-//         }
-//         else{
-//             currentCell.style[styleProperty]=style;
-//             button.style.backgroundColor=transparentBlue;
-//         }
-//     })
-// }
+function buttonClickHandler(currentCell, button, style, toggleStyle, styleProperty) {
+    if (currentCell.style[styleProperty] === style) {
+        currentCell.style[styleProperty] = toggleStyle;
+        button.style.backgroundColor = transparent;
+    }
+    else {
+        currentCell.style[styleProperty] = style;
+        button.style.backgroundColor = transparentBlue;
+    }
+}
 
 // buttonClickHandler(currentCell,boldBtn,'bold','normal','fontWeight');
 
@@ -144,40 +152,43 @@ for (let row = 1; row <= rows; row++) {
     tBody.append(tr);
 }
 
-boldBtn.addEventListener('click',()=>{
-    if(currentCell.style.fontWeight==='bold'){
-        currentCell.style.fontWeight='normal';
-        boldBtn.style.backgroundColor=transparent;
-    }
-    else{
-        currentCell.style.fontWeight='bold';
-        boldBtn.style.backgroundColor=transparentBlue;
-    }
-})
+// boldBtn.addEventListener('click',()=>{
+//     if(currentCell.style.fontWeight==='bold'){
+//         currentCell.style.fontWeight='normal';
+//         boldBtn.style.backgroundColor=transparent;
+//     }
+//     else{
+//         currentCell.style.fontWeight='bold';
+//         boldBtn.style.backgroundColor=transparentBlue;
+//     }
+// })
 
-italicsBtn.addEventListener('click',()=>{
-    if(currentCell.style.fontStyle==='italic'){
-        currentCell.style.fontStyle='normal';
-        italicsBtn.style.backgroundColor=transparent;
-    }
-    else{
-        currentCell.style.fontStyle='italic';
-        italicsBtn.style.backgroundColor=transparentBlue;
-    }
-})
-// buttonClickHandler(currentCell,boldBtn,'bold','normal','fontWeight');
+boldBtn.addEventListener('click', () => buttonClickHandler(currentCell, boldBtn, 'bold', 'normal', 'fontWeight'));
 
-underlineBtn.addEventListener('click',()=>{
-    if(currentCell.style.textDecoration==='underline'){
-        currentCell.style.textDecoration='none';
-        underlineBtn.style.backgroundColor=transparent;
-    }
-    else{
-        currentCell.style.textDecoration='underline';
-        underlineBtn.style.backgroundColor=transparentBlue;
-    }
-})
-// buttonClickHandler(currentCell,boldBtn,'bold','normal','fontWeight');
+italicsBtn.addEventListener('click', () => buttonClickHandler(currentCell, italicsBtn, 'italic', 'normal', 'fontStyle'));
+
+// italicsBtn.addEventListener('click',()=>{
+//     if(currentCell.style.fontStyle==='italic'){
+//         currentCell.style.fontStyle='normal';
+//         italicsBtn.style.backgroundColor=transparent;
+//     }
+//     else{
+//         currentCell.style.fontStyle='italic';
+//         italicsBtn.style.backgroundColor=transparentBlue;
+//     }
+// })
+underlineBtn.addEventListener('click', () => buttonClickHandler(currentCell, underlineBtn, 'underline', 'none', 'textDecoration'));
+
+// underlineBtn.addEventListener('click',()=>{
+//     if(currentCell.style.textDecoration==='underline'){
+//         currentCell.style.textDecoration='none';
+//         underlineBtn.style.backgroundColor=transparent;
+//     }
+//     else{
+//         currentCell.style.textDecoration='underline';
+//         underlineBtn.style.backgroundColor=transparentBlue;
+//     }
+// })
 
 leftBtn.addEventListener('click',()=>{
     currentCell.style.textAlign='left';
@@ -191,6 +202,56 @@ centerBtn.addEventListener('click',()=>{
     currentCell.style.textAlign='center';
 })
 
-fontDropdown.addEventListener('change',()=>{
-    currentCell.style.fontFamily=fontDropdown.value;
+fontFamilyDropdown.addEventListener('change',()=>{
+    currentCell.style.fontFamily=fontFamilyDropdown.value;
 })
+
+fontSizeDropdown.addEventListener('change',()=>{
+    currentCell.style.fontSize=fontSizeDropdown.value;
+})
+
+// input has better UX and but input is very heavy event Listener
+bgColorSelector.addEventListener('input',()=>{
+    currentCell.style.backgroundColor=bgColorSelector.value;
+});
+
+fontColorSelector.addEventListener('change',()=>{
+    currentCell.style.color=fontColorSelector.value;
+})
+
+cutBtn.addEventListener('click',()=>{
+    lastPressedBtn='cut';
+    cutCell={
+        text: currentCell.innerText,
+        style: currentCell.style.cssText,
+    }
+    currentCell.innerText='';
+    currentCell.style.cssText='';
+    // style -> it's an object which stores all the properties in an object
+    // cssText -> property of style object which saves my style properties
+    // in text (short form of style)
+})
+
+copyBtn.addEventListener('click',()=>{
+    lastPressedBtn='copy';
+    cutCell={
+        text: currentCell.innerText,
+        style: currentCell.style.cssText,
+    }
+    // style -> it's an object which stores all the properties in an object
+    // cssText -> property of style object which saves my style properties
+    // in text (short form of style)
+})
+
+pasteBtn.addEventListener('click',()=>{
+    currentCell.innerText = cutCell.text;
+    currentCell.style = cutCell.style;
+     // you can pass
+    // cssText to style
+    if(lastPressedBtn==='cut'){
+        cutCell = undefined;
+    }
+})
+
+// download and upload of sheets
+// and addition of sheets
