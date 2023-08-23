@@ -19,6 +19,7 @@ const rightBtn = document.getElementById('right-btn');
 const cutBtn = document.getElementById('cut-btn');
 const copyBtn = document.getElementById('copy-btn');
 const pasteBtn = document.getElementById('paste-btn');
+const uploadInput = document.getElementById('upload-input');
 
 // color inputs
 const bgColorSelector=document.getElementById('bgColor');
@@ -284,6 +285,41 @@ pasteBtn.addEventListener('click',()=>{
     }
     updateObjectInMatrix();
 })
+
+uploadInput.addEventListener('input',uploadMatrix);
+
+function dowloadMatrix(){
+    const matrixString = JSON.stringify(matrix);
+    // memory out of my matrixString
+    const blob = new Blob([matrixString], { type: 'application/json' });
+
+    // i have my memory which is formed out of matrixString;
+    const link = document.createElement('a');
+    // convert my blob to link href (URL)
+    link.href = URL.createObjectURL(blob);
+    link.download='table.json';
+    // matrix->stringify->blob->URL
+    link.click();
+}
+
+function uploadMatrix(event) {
+    const file = event.target.files[0];
+    if(file){
+        const reader = new FileReader();
+        reader.readAsText(file); // this is the trigger
+        // this reader should convert my blob into js code
+        reader.onload = function(event){
+            const fileContent = JSON.parse(event.target.result);
+            console.log(fileContent);
+            // render over table and copy each and every cell
+        }
+        // reader is inbuild instance of my FileReaderClass
+    }
+}
+
+// render uploaded file
+// add sheet
+// sketch board
 
 // download and upload of sheets
 // and addition of sheets

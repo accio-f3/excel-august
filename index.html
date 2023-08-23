@@ -30,15 +30,20 @@
             <option value="16px">16</option>
             <option value="18px">18</option>
         </select>
+    </div>
+    <div class="table-top-cont">
         <label for="bgColor">bg color</label>
-        <input type="color" id="bgColor"/>
+        <input type="color" id="bgColor" />
 
         <label for="fontColor">font color</label>
-        <input type="color" id="fontColor"/>
+        <input type="color" id="fontColor" />
 
         <button id="cut-btn">Cut</button>
         <button id="copy-btn">Copy</button>
         <button id="paste-btn">Paste</button>
+
+        <button onclick="dowloadMatrix()">Download</button>
+        <input id="upload-input" type="file" accept=".json" />
     </div>
     <table id="my-table">
         <thead>
