@@ -33,6 +33,14 @@ let prevCellId;
 let currentCell;
 let cutCell;
 let lastPressedBtn;
+let matrix = new Array(rows);
+
+for (let row = 0; row < rows; row++) {
+    matrix[row] = new Array(columns);
+    for (let col = 0; col < columns; col++) {
+        matrix[row][col] = {};
+    }
+}
 
 function colGen(typeOfCell, tableRow, isInnerText, rowNumber) {
     for (let col = 0; col < columns; col++) {
@@ -45,6 +53,7 @@ function colGen(typeOfCell, tableRow, isInnerText, rowNumber) {
             // cell.setAttribute('id','testing set ')
             cell.setAttribute('id',`${String.fromCharCode(col + 65)}${rowNumber}`);
             cell.setAttribute('contenteditable','true');
+            cell.addEventListener('focusout', updateObjectInMatrix);
             // key and value
             cell.addEventListener('focus', event => onFocusFunction(event.target));
         }
@@ -77,6 +86,7 @@ function buttonClickHandler(currentCell, button, style, toggleStyle, styleProper
         currentCell.style[styleProperty] = style;
         button.style.backgroundColor = transparentBlue;
     }
+    updateObjectInMatrix();
 }
 
 // buttonClickHandler(currentCell,boldBtn,'bold','normal','fontWeight');
@@ -127,7 +137,20 @@ function onFocusFunction(cell){
     prevCellId=cell.id;
 }
 
-// here row is not required
+function updateObjectInMatrix(){
+    let id = currentCell.id;
+    let tempObj={
+        id: id,
+        text: currentCell.innerText,
+        style: currentCell.style.cssText,
+    }
+    let col=id[0].charCodeAt(0)-65;
+    let row=id.substr(1)-1;
+    matrix[row][col]=tempObj;
+}
+
+
+// here rowNo is not required
 colGen('th', tHeadRow, true);
 
 // for (let col = 0; col < columns; col++) {
@@ -192,31 +215,38 @@ underlineBtn.addEventListener('click', () => buttonClickHandler(currentCell, und
 
 leftBtn.addEventListener('click',()=>{
     currentCell.style.textAlign='left';
+    updateObjectInMatrix();
 })
 
 rightBtn.addEventListener('click',()=>{
     currentCell.style.textAlign='right';
+    updateObjectInMatrix();
 })
 
 centerBtn.addEventListener('click',()=>{
     currentCell.style.textAlign='center';
+    updateObjectInMatrix();
 })
 
 fontFamilyDropdown.addEventListener('change',()=>{
     currentCell.style.fontFamily=fontFamilyDropdown.value;
+    updateObjectInMatrix();
 })
 
 fontSizeDropdown.addEventListener('change',()=>{
     currentCell.style.fontSize=fontSizeDropdown.value;
+    updateObjectInMatrix();
 })
 
 // input has better UX and but input is very heavy event Listener
 bgColorSelector.addEventListener('input',()=>{
     currentCell.style.backgroundColor=bgColorSelector.value;
+    updateObjectInMatrix();
 });
 
 fontColorSelector.addEventListener('change',()=>{
     currentCell.style.color=fontColorSelector.value;
+    updateObjectInMatrix();
 })
 
 cutBtn.addEventListener('click',()=>{
@@ -227,6 +257,7 @@ cutBtn.addEventListener('click',()=>{
     }
     currentCell.innerText='';
     currentCell.style.cssText='';
+    updateObjectInMatrix();
     // style -> it's an object which stores all the properties in an object
     // cssText -> property of style object which saves my style properties
     // in text (short form of style)
@@ -251,7 +282,35 @@ pasteBtn.addEventListener('click',()=>{
     if(lastPressedBtn==='cut'){
         cutCell = undefined;
     }
+    updateObjectInMatrix();
 })
 
 // download and upload of sheets
 // and addition of sheets
+
+// 1st approach
+
+// let twoDMatrix=[
+//     [{},{},{}],
+//     [{},{},{}],
+//     [{},{},{}],
+//     [{},{},{}],
+// ];
+
+// row * col
+// 100 * 26
+
+// 1st approach nested loops to store each and every cell
+// A1 -> A & 1
+
+// colRow -> excel address of cell
+
+// twoDMatrix[col][row] -> ❌
+// twoDMatrix[row][col] -> ✅
+// 
+// 0,0 -> row,col
+// 1, A
+// -1, asciiNumber(A) -65;
+
+// currentCell gets changed -> respective object in matrix
+// updateCell();
