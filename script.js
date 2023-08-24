@@ -3,11 +3,14 @@ const rows=100;
 const columns = 26;
 const transparentBlue='#ddddff';
 const transparent='transparent';
+const arrMatrix='arrMatrix';
 
 // excel components
 const tHeadRow = document.getElementById('table-heading-row');
 const tBody = document.getElementById('table-body');
 const currentCellHeading=document.getElementById('current-cell');
+const sheetNo = document.getElementById('sheet-no');
+const buttonContainer = document.getElementById('button-container');
 
 // excel Buttons
 const boldBtn = document.getElementById('bold-btn');
@@ -20,6 +23,8 @@ const cutBtn = document.getElementById('cut-btn');
 const copyBtn = document.getElementById('copy-btn');
 const pasteBtn = document.getElementById('paste-btn');
 const uploadInput = document.getElementById('upload-input');
+const addSheetButton=document.getElementById('add-sheet-btn');
+const saveSheetButton = document.getElementById('save-sheet-btn');
 
 // color inputs
 const bgColorSelector=document.getElementById('bgColor');
@@ -34,12 +39,18 @@ let prevCellId;
 let currentCell;
 let cutCell;
 let lastPressedBtn;
+let numSheets = 1;
+let currentSheet = 1;
 let matrix = new Array(rows);
+createNewMatrix();
+// 
 
-for (let row = 0; row < rows; row++) {
-    matrix[row] = new Array(columns);
-    for (let col = 0; col < columns; col++) {
-        matrix[row][col] = {};
+function createNewMatrix() {
+    for (let row = 0; row < rows; row++) {
+        matrix[row] = new Array(columns);
+        for (let col = 0; col < columns; col++) {
+            matrix[row][col] = {};
+        }
     }
 }
 
@@ -153,6 +164,7 @@ function updateObjectInMatrix(){
 
 // here rowNo is not required
 colGen('th', tHeadRow, true);
+tableBodyGen();
 
 // for (let col = 0; col < columns; col++) {
 //     const th = document.createElement('th');
@@ -161,19 +173,22 @@ colGen('th', tHeadRow, true);
 //     tHeadRow.append(th);
 // }
 
-for (let row = 1; row <= rows; row++) {
-    const tr = document.createElement('tr');
-    const th = document.createElement('th');
-    th.innerText=row;
-    th.setAttribute('id',row);
-    tr.append(th);
-    // for(let col=0;col<columns;col++){
-    //     const td=document.createElement('td');
-    //     tr.append(td);
-    // }
-    // here row is required
-    colGen('td',tr,false,row);
-    tBody.append(tr);
+function tableBodyGen(){
+    tBody.innerHTML='';
+    for (let row = 1; row <= rows; row++) {
+        const tr = document.createElement('tr');
+        const th = document.createElement('th');
+        th.innerText=row;
+        th.setAttribute('id',row);
+        tr.append(th);
+        // for(let col=0;col<columns;col++){
+        //     const td=document.createElement('td');
+        //     tr.append(td);
+        // }
+        // here row is required
+        colGen('td',tr,false,row);
+        tBody.append(tr);
+    }
 }
 
 // boldBtn.addEventListener('click',()=>{
@@ -288,6 +303,47 @@ pasteBtn.addEventListener('click',()=>{
 
 uploadInput.addEventListener('input',uploadMatrix);
 
+function viewSheet(event){
+    let sheetNo=event.target.id.split('-')[1];
+    let matrixArr = JSON.parse(localStorage.getItem(arrMatrix));
+    // it's very to update my virtual memory
+    matrix=matrixArr[sheetNo-1];
+    tableBodyGen();
+    // rendering my matrix into table
+}
+
+function genNextButtonFn(){
+    // add sheet button
+    const btn = document.createElement('button');
+    numSheets++;
+    currentSheet=numSheets;
+    btn.innerText=`Sheet ${currentSheet}`;
+    btn.setAttribute('id',`sheet-${currentSheet}`);
+    btn.setAttribute('onclick','viewSheet(event)');
+    buttonContainer.append(btn);
+}
+
+function saveMatrix(){
+    if(localStorage.getItem(arrMatrix)){
+        let tempMatrixArr = JSON.parse(localStorage.getItem(arrMatrix));
+        tempMatrixArr.push(matrix);
+        localStorage.setItem(arrMatrix,JSON.stringify(tempMatrixArr));
+    }
+    else{
+        let tempMatrixArr = [matrix];
+        localStorage.setItem(arrMatrix,JSON.stringify(tempMatrixArr));
+    }
+}
+
+addSheetButton.addEventListener('click',()=>{
+    genNextButtonFn();
+    sheetNo.innerText=`Sheet No - ${currentSheet}`;
+    // arrMatrix -> array of matrix
+    saveMatrix();
+    createNewMatrix();
+    tableBodyGen();
+});
+
 function dowloadMatrix(){
     const matrixString = JSON.stringify(matrix);
     // memory out of my matrixString
@@ -350,3 +406,22 @@ function uploadMatrix(event) {
 
 // currentCell gets changed -> respective object in matrix
 // updateCell();
+
+// add sheet button notes
+// save my matrix data somewhere -> localstorage
+// array of matrix
+// cleanup matrix
+// cleanup table
+// update current sheet no -> ✅
+// update total number of sheets -> ✅
+// create button for the new sheet -> ✅
+
+// complete upload fn
+
+// matrix 1 -> should be saved
+// matrix 2 -> should be saved
+// matrxArr=[matrix1,matrix2]
+
+
+// things left rendering matrix data (used at 2 places)
+// save matrix function

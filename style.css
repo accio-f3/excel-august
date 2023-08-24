@@ -33,3 +33,8 @@ td{
 #underline-btn{
     text-decoration: underline;
 }
+
+#button-container{
+    display: flex;
+    gap: 5px;
+}
