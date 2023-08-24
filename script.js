@@ -9,6 +9,7 @@ const arrMatrix='arrMatrix';
 const tHeadRow = document.getElementById('table-heading-row');
 const tBody = document.getElementById('table-body');
 const currentCellHeading=document.getElementById('current-cell');
+// <h1 id="sheet-no">Sheet No - 1</h1>
 const sheetNo = document.getElementById('sheet-no');
 const buttonContainer = document.getElementById('button-container');
 
@@ -24,6 +25,7 @@ const copyBtn = document.getElementById('copy-btn');
 const pasteBtn = document.getElementById('paste-btn');
 const uploadInput = document.getElementById('upload-input');
 const addSheetButton=document.getElementById('add-sheet-btn');
+// DIY
 const saveSheetButton = document.getElementById('save-sheet-btn');
 
 // color inputs
@@ -41,10 +43,18 @@ let cutCell;
 let lastPressedBtn;
 let numSheets = 1;
 let currentSheet = 1;
+let prevSheet;
 let matrix = new Array(rows);
 createNewMatrix();
 // 
+// button creation of firstRender
+if(localStorage.getItem(arrMatrix)){
+    for (let i = 1; i < JSON.parse(localStorage.getItem(arrMatrix)).length; i++) {
+        genNextButtonFn(true);
+    }
+}
 
+//
 function createNewMatrix() {
     for (let row = 0; row < rows; row++) {
         matrix[row] = new Array(columns);
@@ -161,10 +171,13 @@ function updateObjectInMatrix(){
     matrix[row][col]=tempObj;
 }
 
-
 // here rowNo is not required
 colGen('th', tHeadRow, true);
 tableBodyGen();
+if(localStorage.getItem(arrMatrix)){
+    matrix=JSON.parse(localStorage.getItem(arrMatrix))[0];
+    renderMatrix();
+}
 
 // for (let col = 0; col < columns; col++) {
 //     const th = document.createElement('th');
@@ -303,22 +316,49 @@ pasteBtn.addEventListener('click',()=>{
 
 uploadInput.addEventListener('input',uploadMatrix);
 
-function viewSheet(event){
-    let sheetNo=event.target.id.split('-')[1];
-    let matrixArr = JSON.parse(localStorage.getItem(arrMatrix));
-    // it's very to update my virtual memory
-    matrix=matrixArr[sheetNo-1];
-    tableBodyGen();
-    // rendering my matrix into table
+function renderMatrix(){
+    matrix.forEach(row=>{
+        row.forEach(cellObj=>{
+            if(cellObj.id){
+                let currentCell=document.getElementById(cellObj.id);
+                // currentCell is my html obj, cellObj is js object
+                currentCell.innerText=cellObj.text;
+                // I can pass cssText to style, internally it's handling
+                currentCell.style=cellObj.style;
+            }
+        })
+    })
 }
 
-function genNextButtonFn(){
+// matrix -> [{},{},{},{},{}];
+
+function viewSheet(event){
+    prevSheet=currentSheet;
+    currentSheet=event.target.id.split('-')[1];
+    let matrixArr = JSON.parse(localStorage.getItem(arrMatrix));
+    // it should save previous sheet into arrMatrix
+    // matrix -> ✅, prevsheet -> ❌
+    // updatingMatrix with latest matrix in matrixArr
+    // matrixArr=[matrix1,matrix2,matrix3]
+    matrixArr[prevSheet-1]=matrix;
+    localStorage.setItem(arrMatrix,JSON.stringify(matrixArr));
+    // it's very to update my virtual memory
+    matrix=matrixArr[currentSheet-1];
+    tableBodyGen();
+    renderMatrix();
+    sheetNo.innerText=`Sheet No - ${currentSheet}`;
+}
+
+function genNextButtonFn(firstRender){
     // add sheet button
     const btn = document.createElement('button');
     numSheets++;
-    currentSheet=numSheets;
-    btn.innerText=`Sheet ${currentSheet}`;
-    btn.setAttribute('id',`sheet-${currentSheet}`);
+    if(!firstRender){
+        prevSheet=currentSheet;
+        currentSheet=numSheets;
+    }
+    btn.innerText=`Sheet ${numSheets}`;
+    btn.setAttribute('id',`sheet-${numSheets}`);
     btn.setAttribute('onclick','viewSheet(event)');
     buttonContainer.append(btn);
 }
@@ -336,7 +376,7 @@ function saveMatrix(){
 }
 
 addSheetButton.addEventListener('click',()=>{
-    genNextButtonFn();
+    genNextButtonFn(false);
     sheetNo.innerText=`Sheet No - ${currentSheet}`;
     // arrMatrix -> array of matrix
     saveMatrix();
@@ -366,8 +406,8 @@ function uploadMatrix(event) {
         // this reader should convert my blob into js code
         reader.onload = function(event){
             const fileContent = JSON.parse(event.target.result);
-            console.log(fileContent);
-            // render over table and copy each and every cell
+            matrix=fileContent;
+            renderMatrix();
         }
         // reader is inbuild instance of my FileReaderClass
     }
